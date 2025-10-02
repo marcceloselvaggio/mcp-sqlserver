@@ -28,9 +28,16 @@ export class DropTableTool implements Tool {
       };
     } catch (error) {
       console.error("Error dropping table:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorDetails = error instanceof Error && (error as any).code
+        ? `Error Code: ${(error as any).code}`
+        : '';
       return {
         success: false,
-        message: `Failed to drop table: ${error}`
+        message: `Failed to drop table: ${errorMessage}${errorDetails ? '. ' + errorDetails : ''}`,
+        error: errorMessage,
+        errorCode: (error as any).code,
+        errorNumber: (error as any).number,
       };
     }
   }

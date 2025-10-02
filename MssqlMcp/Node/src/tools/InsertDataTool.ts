@@ -132,9 +132,16 @@ IMPORTANT RULES:
       }
     } catch (error) {
       console.error("Error inserting data:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorDetails = error instanceof Error && (error as any).code
+        ? `Error Code: ${(error as any).code}`
+        : '';
       return {
         success: false,
-        message: `Failed to insert data: ${error}`,
+        message: `Failed to insert data: ${errorMessage}${errorDetails ? '. ' + errorDetails : ''}`,
+        error: errorMessage,
+        errorCode: (error as any).code,
+        errorNumber: (error as any).number,
       };
     }
   }

@@ -40,9 +40,16 @@ export class CreateTableTool implements Tool {
       };
     } catch (error) {
       console.error("Error creating table:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorDetails = error instanceof Error && (error as any).code
+        ? `Error Code: ${(error as any).code}`
+        : '';
       return {
         success: false,
-        message: `Failed to create table: ${error}`
+        message: `Failed to create table: ${errorMessage}${errorDetails ? '. ' + errorDetails : ''}`,
+        error: errorMessage,
+        errorCode: (error as any).code,
+        errorNumber: (error as any).number,
       };
     }
   }

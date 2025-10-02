@@ -55,9 +55,17 @@ export class UpdateDataTool implements Tool {
       };
     } catch (error) {
       console.error("Error updating data:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorDetails = error instanceof Error && (error as any).code
+        ? `Error Code: ${(error as any).code}`
+        : '';
       return {
         success: false,
-        message: `Failed to update data ${query ? ` with '${query}'` : ''}: ${error}`,
+        message: `Failed to update data${query ? ` with query '${query}'` : ''}: ${errorMessage}${errorDetails ? '. ' + errorDetails : ''}`,
+        error: errorMessage,
+        errorCode: (error as any).code,
+        errorNumber: (error as any).number,
+        query: query,
       };
     }
   }

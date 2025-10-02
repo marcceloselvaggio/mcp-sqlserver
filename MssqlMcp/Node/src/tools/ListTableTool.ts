@@ -34,9 +34,16 @@ export class ListTableTool implements Tool {
       };
     } catch (error) {
       console.error("Error listing tables:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorDetails = error instanceof Error && (error as any).code
+        ? `Error Code: ${(error as any).code}`
+        : '';
       return {
         success: false,
-        message: `Failed to list tables: ${error}`,
+        message: `Failed to list tables: ${errorMessage}${errorDetails ? '. ' + errorDetails : ''}`,
+        error: errorMessage,
+        errorCode: (error as any).code,
+        errorNumber: (error as any).number,
       };
     }
   }

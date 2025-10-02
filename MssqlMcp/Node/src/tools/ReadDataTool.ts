@@ -228,17 +228,17 @@ export class ReadDataTool implements Tool {
 
     } catch (error) {
       console.error("Error executing query:", error);
-
-      // Don't expose internal error details to prevent information leakage
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      const safeErrorMessage = errorMessage.includes('Invalid object name')
-        ? errorMessage
-        : 'Database query execution failed';
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorDetails = error instanceof Error && (error as any).code
+        ? `Error Code: ${(error as any).code}`
+        : '';
 
       return {
         success: false,
-        message: `Failed to execute query: ${safeErrorMessage}`,
-        error: 'QUERY_EXECUTION_FAILED'
+        message: `Failed to execute query: ${errorMessage}${errorDetails ? '. ' + errorDetails : ''}`,
+        error: errorMessage,
+        errorCode: (error as any).code,
+        errorNumber: (error as any).number,
       };
     }
   }
