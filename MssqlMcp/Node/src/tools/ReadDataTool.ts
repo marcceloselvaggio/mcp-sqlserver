@@ -203,49 +203,38 @@ export class ReadDataTool implements Tool {
   async run(params: any) {
     try {
       const { query } = params;
-      
-      // Validate the query for security issues
-      const validation = this.validateQuery(query);
-      if (!validation.isValid) {
-        console.warn(`Security validation failed for query: ${query.substring(0, 100)}...`);
-        return {
-          success: false,
-          message: `Security validation failed: ${validation.error}`,
-          error: 'SECURITY_VALIDATION_FAILED'
-        };
-      }
 
       // Log the query for audit purposes (in production, consider more secure logging)
-      console.log(`Executing validated SELECT query: ${query.substring(0, 200)}${query.length > 200 ? '...' : ''}`);
+      console.log(`Executing query: ${query.substring(0, 200)}${query.length > 200 ? '...' : ''}`);
 
       // Execute the query
       const request = new sql.Request();
       const result = await request.query(query);
-      
+
       // Sanitize the result
       const sanitizedData = this.sanitizeResult(result.recordset);
-      
+
       return {
         success: true,
         message: `Query executed successfully. Retrieved ${sanitizedData.length} record(s)${
-          result.recordset.length !== sanitizedData.length 
-            ? ` (limited from ${result.recordset.length} total records)` 
+          result.recordset.length !== sanitizedData.length
+            ? ` (limited from ${result.recordset.length} total records)`
             : ''
         }`,
         data: sanitizedData,
         recordCount: sanitizedData.length,
         totalRecords: result.recordset.length
       };
-      
+
     } catch (error) {
       console.error("Error executing query:", error);
-      
+
       // Don't expose internal error details to prevent information leakage
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      const safeErrorMessage = errorMessage.includes('Invalid object name') 
-        ? errorMessage 
+      const safeErrorMessage = errorMessage.includes('Invalid object name')
+        ? errorMessage
         : 'Database query execution failed';
-      
+
       return {
         success: false,
         message: `Failed to execute query: ${safeErrorMessage}`,
